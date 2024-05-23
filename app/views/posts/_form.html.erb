@@ -21,6 +21,14 @@
     <%= form.rich_text_area :content %>
   </div>
 
+  <div class="field">
+    <%= form.label :image %>
+    <% if post.image.attached? %>
+      <%= image_tag post.image %>
+    <% end %>
+    <%= form.file_field :image %>
+  </div>
+
   <div class="actions">
     <%= form.submit %>
   </div>

@@ -10,5 +10,9 @@
   <%= @post.content %>
 </p>
 
+<% if @post.image.attached? %>
+  <%= image_tag @post.image %>
+<% end %>
+
 <%= link_to 'Edit', edit_post_path(@post) %> |
 <%= link_to 'Back', posts_path %>
