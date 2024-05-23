@@ -13,12 +13,12 @@ default: &default
   adapter: mysql
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: root
-  password:
+  password: password123
   host: localhost
 
 development:
   <<: *default
-  database: jruby_rails_demo_development
+  database: jruby_rails_test_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
