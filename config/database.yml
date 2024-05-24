@@ -49,6 +49,4 @@ test:
 #
 production:
   <<: *default
-  database: jruby_rails_demo_production
-  username: jruby_rails_demo
-  password: <%= ENV['JRUBY_RAILS_DEMO_DATABASE_PASSWORD'] %>
+  database: jruby_rails_test_development
