@@ -71,8 +71,11 @@ def inject_script
   File.open("#{WAR_EXTRACT_PATH}META-INF/init.rb", 'a') { |file| file.write(code) }
 end
 
-unless Dir.exist? OUT_PATH
+if File.exist? OUT_PATH
   run_syscmd 'Previous build cleanup', "rm #{OUT_PATH}"
+end
+unless Dir.exist? 'public/assets'
+  run_syscmd 'Pre-compile assets', 'RAILS_ENV=production bin/rails assets:precompile'
 end
 run_syscmd 'Warble build', 'bundle exec warble executable war'
 run_syscmd 'Extract WAR', "mkdir -p #{WAR_EXTRACT_PATH} && unzip #{WAR_FILE_PATH} -d #{WAR_EXTRACT_PATH}"
