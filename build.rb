@@ -10,8 +10,10 @@ require 'rubygems'
 require 'zip'
 
 TEMP_PATH = 'build_temp/'
+CACHE_PATH = 'tmp/jar/'
 WAR_FILE_PATH = 'jruby-rails-demo.war'
 WAR_EXTRACT_PATH = "#{TEMP_PATH}war_extracts/"
+OUT_PATH = 'out.war'
 
 def run_syscmd(name, cmd)
   system cmd
@@ -29,10 +31,16 @@ def clear_temp
 end
 
 def temp_download(name, url)
-  unless Dir.exist? TEMP_PATH
-    Dir.mkdir TEMP_PATH
+  filename = url.split("/")[-1]
+  unless Dir.exist? CACHE_PATH
+    Dir.mkdir CACHE_PATH
   end
-  run_syscmd "Downloading #{name}", "cd #{TEMP_PATH} && curl -O #{url}"
+  unless File.exist? "#{CACHE_PATH}#{filename}"
+    run_syscmd "Downloading #{filename}", "cd #{CACHE_PATH} && curl -O #{url}"
+  else
+    puts "ℹ️  Using #{name} from cache" 
+  end
+  FileUtils.cp "#{CACHE_PATH}#{filename}", "#{WAR_EXTRACT_PATH}WEB-INF/lib/#{filename}" 
 end
 
 def del_lib(pattern)
@@ -44,7 +52,7 @@ def del_lib(pattern)
 end
 
 def copy_lib(name)
-  FileUtils.cp "#{TEMP_PATH}#{name}", "#{WAR_EXTRACT_PATH}WEB-INF/lib/#{name}" 
+  FileUtils.cp "#{CACHE_PATH}#{name}", "#{WAR_EXTRACT_PATH}WEB-INF/lib/#{name}" 
 end
 
 def inject_script
@@ -63,11 +71,14 @@ def inject_script
   File.open("#{WAR_EXTRACT_PATH}META-INF/init.rb", 'a') { |file| file.write(code) }
 end
 
-run_syscmd "Warble build", "bundle exec warble executable war"
-run_syscmd "Extract WAR", "mkdir -p #{WAR_EXTRACT_PATH} && unzip #{WAR_FILE_PATH} -d #{WAR_EXTRACT_PATH}"
+unless Dir.exist? OUT_PATH
+  run_syscmd 'Previous build cleanup', "rm #{OUT_PATH}"
+end
+run_syscmd 'Warble build', 'bundle exec warble executable war'
+run_syscmd 'Extract WAR', "mkdir -p #{WAR_EXTRACT_PATH} && unzip #{WAR_FILE_PATH} -d #{WAR_EXTRACT_PATH}"
 
-temp_download "JRuby core", "https://repo1.maven.org/maven2/org/jruby/jruby-core/#{JRUBY_VERSION}/jruby-core-#{JRUBY_VERSION}.jar"
-temp_download "JRuby stdlib", "https://repo1.maven.org/maven2/org/jruby/jruby-stdlib/#{JRUBY_VERSION}/jruby-stdlib-#{JRUBY_VERSION}.jar"
+temp_download 'JRuby core', "https://repo1.maven.org/maven2/org/jruby/jruby-core/#{JRUBY_VERSION}/jruby-core-#{JRUBY_VERSION}.jar"
+temp_download 'JRuby stdlib', "https://repo1.maven.org/maven2/org/jruby/jruby-stdlib/#{JRUBY_VERSION}/jruby-stdlib-#{JRUBY_VERSION}.jar"
 
 del_lib "jruby-core\..+\.jar"
 del_lib "jruby-stdlib\..+\.jar"
@@ -77,7 +88,7 @@ copy_lib "jruby-stdlib-#{JRUBY_VERSION}.jar"
 
 inject_script
 
-Zip::File.open('out.war', create: true) do |warfile|
+Zip::File.open(OUT_PATH, create: true) do |warfile|
   Dir["#{WAR_EXTRACT_PATH}/**/*"].each do |file|
     warfile.add file.sub("#{WAR_EXTRACT_PATH}/", ""), file
   end
