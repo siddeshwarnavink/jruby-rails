@@ -15,17 +15,16 @@ default: &default
   username: root
   password: password123
   host: localhost
+  database: jruby_rails_test
 
 development:
   <<: *default
-  database: jruby_rails_test_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: jruby_rails_demo_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -49,4 +48,3 @@ test:
 #
 production:
   <<: *default
-  database: jruby_rails_test_development

@@ -19,9 +19,8 @@ def run_syscmd(name, cmd)
   system cmd
   if $?.success?
     puts "✅ #{name} successful!"
-  else 
+  else
     abort "😔 #{name} failed!"
-    clear_temp
   end
 end
 
@@ -35,12 +34,12 @@ def temp_download(name, url)
   unless Dir.exist? CACHE_PATH
     Dir.mkdir CACHE_PATH
   end
-  unless File.exist? "#{CACHE_PATH}#{filename}"
-    run_syscmd "Downloading #{filename}", "cd #{CACHE_PATH} && curl -O #{url}"
+  if File.exist? "#{CACHE_PATH}#{filename}"
+    puts "ℹ️  Using #{name} from cache"
   else
-    puts "ℹ️  Using #{name} from cache" 
+    run_syscmd "Downloading #{filename}", "cd #{CACHE_PATH} && curl -O #{url}"
   end
-  FileUtils.cp "#{CACHE_PATH}#{filename}", "#{WAR_EXTRACT_PATH}WEB-INF/lib/#{filename}" 
+  FileUtils.cp "#{CACHE_PATH}#{filename}", "#{WAR_EXTRACT_PATH}WEB-INF/lib/#{filename}"
 end
 
 def del_lib(pattern)
@@ -52,20 +51,20 @@ def del_lib(pattern)
 end
 
 def copy_lib(name)
-  FileUtils.cp "#{CACHE_PATH}#{name}", "#{WAR_EXTRACT_PATH}WEB-INF/lib/#{name}" 
+  FileUtils.cp "#{CACHE_PATH}#{name}", "#{WAR_EXTRACT_PATH}WEB-INF/lib/#{name}"
 end
 
 def inject_script
   code = <<~HEREDOC
-  # Code injection starts
-  puts '💉 Executing injected code'
-  system 'gem install sassc'
-  if $?.success?
-    puts "✅ Code injection successful!"
-  else 
-    abort "😔 Code injection failed!"
-  end
-  # Code injection ends
+    # Code injection starts
+    puts '💉 Executing injected code'
+    system 'gem install sassc'
+    if $?.success?
+      puts "✅ Code injection successful!"
+    else 
+      abort "😔 Code injection failed!"
+    end
+    # Code injection ends
   HEREDOC
 
   File.open("#{WAR_EXTRACT_PATH}META-INF/init.rb", 'a') { |file| file.write(code) }
