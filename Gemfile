@@ -31,7 +31,7 @@ group :development do
   # Display performance information such as SQL time and flame graphs for each request in your browser.
   # Can be configured to work on production as well see: https://github.com/MiniProfiler/rack-mini-profiler/blob/master/README.md
   gem 'rack-mini-profiler', '~> 2.0'
-  gem 'listen', '~> 3.3' 
+  gem 'listen', '~> 3.3'
 
   gem 'zip-zip'
 
@@ -40,11 +40,26 @@ end
 
 group :test do
   # Adds support for Capybara system testing and selenium driver
-  gem 'capybara', '>= 3.26'
-  gem 'selenium-webdriver', '>= 4.0.0.rc1'
   # Easy installation and use of web drivers to run system tests with browsers
-  gem 'webdrivers'
 end
+
+group :production do
+  gem 'addressable', '~> 2.8.6'
+  gem 'matrix', '~> 0.4.2'
+  gem 'regexp_parser', '~> 2.9.2'
+  gem 'xpath', '~> 3.2.0'
+  gem 'childprocess', '~> 4.1.0'
+  gem 'rexml', '~> 3.2.8'
+  gem 'rubyzip', '~> 1.2.4'
+  gem 'public_suffix', '~> 5.0.5'
+  gem 'strscan', '~> 3.1.0'
+end
+
+gem 'capybara', '~> 3.36.0'
+
+gem 'webdrivers'
+
+gem 'selenium-webdriver', '~> 4.1.0'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
